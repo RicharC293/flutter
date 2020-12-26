@@ -68,7 +68,8 @@ const Color _kCircleActiveDark = Colors.black87;
 const Color _kDisabledLight = Colors.black38;
 const Color _kDisabledDark = Colors.white38;
 const double _kStepSize = 24.0;
-const double _kTriangleHeight = _kStepSize * 0.866025; // Triangle height. sqrt(3.0) / 2.0
+const double _kTriangleHeight =
+    _kStepSize * 0.866025; // Triangle height. sqrt(3.0) / 2.0
 
 /// A material step used in [Stepper]. The step can have a title and subtitle,
 /// an icon within its circle, some content and a state that governs its
@@ -89,9 +90,9 @@ class Step {
     @required this.content,
     this.state = StepState.indexed,
     this.isActive = false,
-  }) : assert(title != null),
-       assert(content != null),
-       assert(state != null);
+  })  : assert(title != null),
+        assert(content != null),
+        assert(state != null);
 
   /// The title of the step that typically describes it.
   final Widget title;
@@ -144,13 +145,14 @@ class Stepper extends StatefulWidget {
     this.currentStep = 0,
     this.onStepTapped,
     this.onStepContinue,
+    this.scrollController,
     this.onStepCancel,
     this.controlsBuilder,
-  }) : assert(steps != null),
-       assert(type != null),
-       assert(currentStep != null),
-       assert(0 <= currentStep && currentStep < steps.length),
-       super(key: key);
+  })  : assert(steps != null),
+        assert(type != null),
+        assert(currentStep != null),
+        assert(0 <= currentStep && currentStep < steps.length),
+        super(key: key);
 
   /// The steps of the stepper whose titles, subtitles, icons always get shown.
   ///
@@ -183,6 +185,9 @@ class Stepper extends StatefulWidget {
   ///
   /// If null, the 'continue' button will be disabled.
   final VoidCallback onStepContinue;
+
+  //Add controller
+  final ScrollController scrollController;
 
   /// The callback called when the 'cancel' button is tapped.
   ///
@@ -293,7 +298,8 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
   }
 
   Widget _buildCircleChild(int index, bool oldState) {
-    final StepState state = oldState ? _oldStates[index] : widget.steps[index].state;
+    final StepState state =
+        oldState ? _oldStates[index] : widget.steps[index].state;
     final bool isDarkActive = _isDark() && widget.steps[index].isActive;
     assert(state != null);
     switch (state) {
@@ -301,7 +307,9 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
       case StepState.disabled:
         return Text(
           '${index + 1}',
-          style: isDarkActive ? _kStepStyle.copyWith(color: Colors.black87) : _kStepStyle,
+          style: isDarkActive
+              ? _kStepStyle.copyWith(color: Colors.black87)
+              : _kStepStyle,
         );
       case StepState.editing:
         return Icon(
@@ -324,9 +332,13 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
   Color _circleColor(int index) {
     final ThemeData themeData = Theme.of(context);
     if (!_isDark()) {
-      return widget.steps[index].isActive ? themeData.primaryColor : Colors.black38;
+      return widget.steps[index].isActive
+          ? themeData.primaryColor
+          : Colors.black38;
     } else {
-      return widget.steps[index].isActive ? themeData.accentColor : themeData.backgroundColor;
+      return widget.steps[index].isActive
+          ? themeData.accentColor
+          : themeData.backgroundColor;
     }
   }
 
@@ -343,7 +355,8 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
           shape: BoxShape.circle,
         ),
         child: Center(
-          child: _buildCircleChild(index, oldState && widget.steps[index].state == StepState.error),
+          child: _buildCircleChild(
+              index, oldState && widget.steps[index].state == StepState.error),
         ),
       ),
     );
@@ -357,14 +370,17 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
       child: Center(
         child: SizedBox(
           width: _kStepSize,
-          height: _kTriangleHeight, // Height of 24dp-long-sided equilateral triangle.
+          height:
+              _kTriangleHeight, // Height of 24dp-long-sided equilateral triangle.
           child: CustomPaint(
             painter: _TrianglePainter(
               color: _isDark() ? _kErrorDark : _kErrorLight,
             ),
             child: Align(
-              alignment: const Alignment(0.0, 0.8), // 0.8 looks better than the geometrical 0.33.
-              child: _buildCircleChild(index, oldState && widget.steps[index].state != StepState.error),
+              alignment: const Alignment(
+                  0.0, 0.8), // 0.8 looks better than the geometrical 0.33.
+              child: _buildCircleChild(index,
+                  oldState && widget.steps[index].state != StepState.error),
             ),
           ),
         ),
@@ -380,7 +396,9 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
         firstCurve: const Interval(0.0, 0.6, curve: Curves.fastOutSlowIn),
         secondCurve: const Interval(0.4, 1.0, curve: Curves.fastOutSlowIn),
         sizeCurve: Curves.fastOutSlowIn,
-        crossFadeState: widget.steps[index].state == StepState.error ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+        crossFadeState: widget.steps[index].state == StepState.error
+            ? CrossFadeState.showSecond
+            : CrossFadeState.showFirst,
         duration: kThemeAnimationDuration,
       );
     } else {
@@ -393,7 +411,9 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
 
   Widget _buildVerticalControls() {
     if (widget.controlsBuilder != null)
-      return widget.controlsBuilder(context, onStepContinue: widget.onStepContinue, onStepCancel: widget.onStepCancel);
+      return widget.controlsBuilder(context,
+          onStepContinue: widget.onStepContinue,
+          onStepCancel: widget.onStepCancel);
 
     Color cancelColor;
 
@@ -410,9 +430,11 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
 
     final ThemeData themeData = Theme.of(context);
     final ColorScheme colorScheme = themeData.colorScheme;
-    final MaterialLocalizations localizations = MaterialLocalizations.of(context);
+    final MaterialLocalizations localizations =
+        MaterialLocalizations.of(context);
 
-    const OutlinedBorder buttonShape = RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(2)));
+    const OutlinedBorder buttonShape = RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(2)));
     const EdgeInsets buttonPadding = EdgeInsets.symmetric(horizontal: 16.0);
 
     return Container(
@@ -427,13 +449,22 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
             TextButton(
               onPressed: widget.onStepContinue,
               style: ButtonStyle(
-                foregroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-                  return states.contains(MaterialState.disabled) ? null : (_isDark() ? colorScheme.onSurface : colorScheme.onPrimary);
+                foregroundColor: MaterialStateProperty.resolveWith<Color>(
+                    (Set<MaterialState> states) {
+                  return states.contains(MaterialState.disabled)
+                      ? null
+                      : (_isDark()
+                          ? colorScheme.onSurface
+                          : colorScheme.onPrimary);
                 }),
-                backgroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-                  return _isDark() || states.contains(MaterialState.disabled) ? null : colorScheme.primary;
+                backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                    (Set<MaterialState> states) {
+                  return _isDark() || states.contains(MaterialState.disabled)
+                      ? null
+                      : colorScheme.primary;
                 }),
-                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(buttonPadding),
+                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                    buttonPadding),
                 shape: MaterialStateProperty.all<OutlinedBorder>(buttonShape),
               ),
               child: Text(localizations.continueButtonLabel),
@@ -467,13 +498,11 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
       case StepState.complete:
         return textTheme.bodyText1;
       case StepState.disabled:
-        return textTheme.bodyText1.copyWith(
-          color: _isDark() ? _kDisabledDark : _kDisabledLight
-        );
+        return textTheme.bodyText1
+            .copyWith(color: _isDark() ? _kDisabledDark : _kDisabledLight);
       case StepState.error:
-        return textTheme.bodyText1.copyWith(
-          color: _isDark() ? _kErrorDark : _kErrorLight
-        );
+        return textTheme.bodyText1
+            .copyWith(color: _isDark() ? _kErrorDark : _kErrorLight);
     }
     return null;
   }
@@ -489,13 +518,11 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
       case StepState.complete:
         return textTheme.caption;
       case StepState.disabled:
-        return textTheme.caption.copyWith(
-          color: _isDark() ? _kDisabledDark : _kDisabledLight
-        );
+        return textTheme.caption
+            .copyWith(color: _isDark() ? _kDisabledDark : _kDisabledLight);
       case StepState.error:
-        return textTheme.caption.copyWith(
-          color: _isDark() ? _kErrorDark : _kErrorLight
-        );
+        return textTheme.caption
+            .copyWith(color: _isDark() ? _kErrorDark : _kErrorLight);
     }
     return null;
   }
@@ -540,11 +567,10 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
             ],
           ),
           Expanded(
-            child: Container(
-              margin: const EdgeInsetsDirectional.only(start: 12.0),
-              child: _buildHeaderText(index),
-            )
-          ),
+              child: Container(
+            margin: const EdgeInsetsDirectional.only(start: 12.0),
+            child: _buildHeaderText(index),
+          )),
         ],
       ),
     );
@@ -587,7 +613,9 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
           firstCurve: const Interval(0.0, 0.6, curve: Curves.fastOutSlowIn),
           secondCurve: const Interval(0.4, 1.0, curve: Curves.fastOutSlowIn),
           sizeCurve: Curves.fastOutSlowIn,
-          crossFadeState: _isCurrent(index) ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+          crossFadeState: _isCurrent(index)
+              ? CrossFadeState.showSecond
+              : CrossFadeState.showFirst,
           duration: kThemeAnimationDuration,
         ),
       ],
@@ -598,24 +626,26 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
     return ListView(
       shrinkWrap: true,
       physics: widget.physics,
+      controller: widget.scrollController,
       children: <Widget>[
         for (int i = 0; i < widget.steps.length; i += 1)
           Column(
             key: _keys[i],
             children: <Widget>[
               InkWell(
-                onTap: widget.steps[i].state != StepState.disabled ? () {
-                  // In the vertical case we need to scroll to the newly tapped
-                  // step.
-                  Scrollable.ensureVisible(
-                    _keys[i].currentContext,
-                    curve: Curves.fastOutSlowIn,
-                    duration: kThemeAnimationDuration,
-                  );
+                onTap: widget.steps[i].state != StepState.disabled
+                    ? () {
+                        // In the vertical case we need to scroll to the newly tapped
+                        // step.
+                        Scrollable.ensureVisible(
+                          _keys[i].currentContext,
+                          curve: Curves.fastOutSlowIn,
+                          duration: kThemeAnimationDuration,
+                        );
 
-                  if (widget.onStepTapped != null)
-                    widget.onStepTapped(i);
-                } : null,
+                        if (widget.onStepTapped != null) widget.onStepTapped(i);
+                      }
+                    : null,
                 canRequestFocus: widget.steps[i].state != StepState.disabled,
                 child: _buildVerticalHeader(i),
               ),
@@ -630,10 +660,11 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
     final List<Widget> children = <Widget>[
       for (int i = 0; i < widget.steps.length; i += 1) ...<Widget>[
         InkResponse(
-          onTap: widget.steps[i].state != StepState.disabled ? () {
-            if (widget.onStepTapped != null)
-              widget.onStepTapped(i);
-          } : null,
+          onTap: widget.steps[i].state != StepState.disabled
+              ? () {
+                  if (widget.onStepTapped != null) widget.onStepTapped(i);
+                }
+              : null,
           canRequestFocus: widget.steps[i].state != StepState.disabled,
           child: Row(
             children: <Widget>[
@@ -675,6 +706,7 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
         Expanded(
           child: ListView(
             physics: widget.physics,
+            controller: widget.scrollController,
             padding: const EdgeInsets.all(24.0),
             children: <Widget>[
               AnimatedSize(
@@ -697,12 +729,10 @@ class _StepperState extends State<Stepper> with TickerProviderStateMixin {
     assert(debugCheckHasMaterialLocalizations(context));
     assert(() {
       if (context.findAncestorWidgetOfExactType<Stepper>() != null)
-        throw FlutterError(
-          'Steppers must not be nested.\n'
-          'The material specification advises that one should avoid embedding '
-          'steppers within steppers. '
-          'https://material.io/archive/guidelines/components/steppers.html#steppers-usage'
-        );
+        throw FlutterError('Steppers must not be nested.\n'
+            'The material specification advises that one should avoid embedding '
+            'steppers within steppers. '
+            'https://material.io/archive/guidelines/components/steppers.html#steppers-usage');
       return true;
     }());
     assert(widget.type != null);
